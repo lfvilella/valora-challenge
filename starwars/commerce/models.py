@@ -14,9 +14,9 @@ class Address(models.Model):
         abstract = True
 
     STATE_CHOICES = (
-        ('sp', 'SP'),
-        ('pr', 'PR'),
-        ('mg', 'MG'),
+        ("sp", "SP"),
+        ("pr", "PR"),
+        ("mg", "MG"),
     )
 
     state = models.CharField(
@@ -34,8 +34,7 @@ class Advertiser(BaseModel):
     name = models.CharField(max_length=255, null=True, blank=True)
     password = models.CharField(max_length=20, null=True, blank=True)
     email = models.EmailField()
-    phone =
-    company_link =
+    phone = models.CharField(max_length=20, null=False, blank=False)
 
 
 class Tool(BaseModel):
@@ -44,7 +43,13 @@ class Tool(BaseModel):
 
 
 class Order(BaseModel):
-    item = models.ForeignKey(Tool, on_delete=models.CASCADE, null=False, blank=False)
-    delivery_address = models.ForeignKey(Address, on_delete=models.CASCADE, null=False, blank=False)
-    contact_information = # foreingkey de Anunciante
+    item = models.ForeignKey(
+        Tool, on_delete=models.CASCADE, null=False, blank=False
+    )
+    delivery_address = models.ForeignKey(
+        Address, on_delete=models.CASCADE, null=False, blank=False
+    )
+    contact_information = models.ForeignKey(
+        Advertiser, on_delete=models.CASCADE, null=False, blank=False
+    )
     status = models.BooleanField(default=True)
