@@ -15,57 +15,137 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Tool',
+            name="Tool",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('last_change', models.DateTimeField(auto_now=True)),
-                ('name', models.CharField(max_length=50)),
-                ('description', models.TextField()),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("last_change", models.DateTimeField(auto_now=True)),
+                ("name", models.CharField(max_length=50)),
+                ("description", models.TextField()),
             ],
-            options={
-                'abstract': False,
-            },
+            options={"abstract": False},
         ),
         migrations.CreateModel(
-            name='Order',
+            name="Order",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('last_change', models.DateTimeField(auto_now=True)),
-                ('status', models.CharField(choices=[('open', 'Open'), ('finished', 'Finished')], default='open', max_length=20)),
-                ('item', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='commerce.Tool')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("last_change", models.DateTimeField(auto_now=True)),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[("open", "Open"), ("finished", "Finished")],
+                        default="open",
+                        max_length=20,
+                    ),
+                ),
+                (
+                    "item",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="commerce.Tool",
+                    ),
+                ),
             ],
-            options={
-                'abstract': False,
-            },
+            options={"abstract": False},
         ),
         migrations.CreateModel(
-            name='Advertiser',
+            name="Advertiser",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('last_change', models.DateTimeField(auto_now=True)),
-                ('phone', models.CharField(max_length=20)),
-                ('order', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='commerce.Order')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("last_change", models.DateTimeField(auto_now=True)),
+                ("phone", models.CharField(max_length=20)),
+                (
+                    "order",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="commerce.Order",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
-            options={
-                'abstract': False,
-            },
+            options={"abstract": False},
         ),
         migrations.CreateModel(
-            name='Address',
+            name="Address",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('state', models.CharField(blank=True, choices=[('sp', 'SP'), ('pr', 'PR'), ('mg', 'MG')], max_length=2, null=True)),
-                ('address', models.CharField(blank=True, max_length=255, null=True)),
-                ('neighborhood', models.CharField(blank=True, max_length=255, null=True)),
-                ('number', models.IntegerField(blank=True, null=True)),
-                ('complement', models.CharField(blank=True, max_length=20, null=True)),
-                ('city', models.CharField(blank=True, max_length=50, null=True)),
-                ('cep', models.CharField(blank=True, max_length=12, null=True)),
-                ('order', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='commerce.Order')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "state",
+                    models.CharField(
+                        blank=True,
+                        choices=[("sp", "SP"), ("pr", "PR"), ("mg", "MG")],
+                        max_length=2,
+                        null=True,
+                    ),
+                ),
+                (
+                    "address",
+                    models.CharField(blank=True, max_length=255, null=True),
+                ),
+                (
+                    "neighborhood",
+                    models.CharField(blank=True, max_length=255, null=True),
+                ),
+                ("number", models.IntegerField(blank=True, null=True)),
+                (
+                    "complement",
+                    models.CharField(blank=True, max_length=20, null=True),
+                ),
+                (
+                    "city",
+                    models.CharField(blank=True, max_length=50, null=True),
+                ),
+                (
+                    "cep",
+                    models.CharField(blank=True, max_length=12, null=True),
+                ),
+                (
+                    "order",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="commerce.Order",
+                    ),
+                ),
             ],
         ),
     ]
