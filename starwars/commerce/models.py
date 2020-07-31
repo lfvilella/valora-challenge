@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 
 class BaseModel(models.Model):
@@ -10,9 +11,6 @@ class BaseModel(models.Model):
 
 
 class Address(models.Model):
-    class Meta:
-        abstract = True
-
     STATE_CHOICES = (
         ("sp", "SP"),
         ("pr", "PR"),
@@ -20,36 +18,53 @@ class Address(models.Model):
     )
 
     state = models.CharField(
-        max_length=30, choices=STATE_CHOICES, null=True, blank=True
+        max_length=2, choices=STATE_CHOICES, null=True, blank=True
     )
-    endereco = models.CharField(max_length=255, null=True, blank=True)
+    address = models.CharField(max_length=255, null=True, blank=True)
     neighborhood = models.CharField(max_length=255, null=True, blank=True)
     number = models.IntegerField(null=True, blank=True)
     complement = models.CharField(max_length=20, null=True, blank=True)
     city = models.CharField(max_length=50, null=True, blank=True)
     cep = models.CharField(max_length=12, null=True, blank=True)
+    order = models.ForeignKey("Order", on_delete=models.CASCADE)
 
 
 class Advertiser(BaseModel):
-    name = models.CharField(max_length=255, null=True, blank=True)
-    password = models.CharField(max_length=20, null=True, blank=True)
-    email = models.EmailField()
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     phone = models.CharField(max_length=20, null=False, blank=False)
+    order = models.ForeignKey("Order", on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.user} - {self.phone}"
 
 
 class Tool(BaseModel):
-    name = models.Charfield(max_length=50, null=False, blank=False)
+    name = models.CharField(max_length=50, null=False, blank=False)
     description = models.TextField(null=False, blank=False)
+
+    def __str__(self):
+        return f"{self.name}"
 
 
 class Order(BaseModel):
+    STATUS_OPEN = "open"
+    STATUS_FINISHED = "finished"
+
+    STATUS_CHOICES = (
+        (STATUS_OPEN, "Open"),
+        (STATUS_FINISHED, "Finished"),
+    )
+
     item = models.ForeignKey(
         Tool, on_delete=models.CASCADE, null=False, blank=False
     )
-    delivery_address = models.ForeignKey(
-        Address, on_delete=models.CASCADE, null=False, blank=False
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        null=False,
+        blank=False,
+        default=STATUS_OPEN,
     )
-    contact_information = models.ForeignKey(
-        Advertiser, on_delete=models.CASCADE, null=False, blank=False
-    )
-    status = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"{self.item} - {self.status}"
