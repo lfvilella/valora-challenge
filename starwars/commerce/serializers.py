@@ -3,22 +3,10 @@ from . import models
 from . import services
 
 
-class AdvertiserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.Advertiser
-        fields = ["user", "phone"]
-
-
 class ItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Item
         fields = ["id", "name", "description"]
-
-
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.User
-        fields = ["username", "email", "password"]
 
 
 class AddressSerializer(serializers.ModelSerializer):
