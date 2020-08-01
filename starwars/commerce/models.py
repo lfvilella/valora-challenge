@@ -50,19 +50,17 @@ class Address(models.Model):
     complement = models.CharField(max_length=20, null=True, blank=True)
     city = models.CharField(max_length=50, null=True, blank=True)
     cep = models.CharField(max_length=12, null=True, blank=True)
-    order = models.ForeignKey("Order", on_delete=models.CASCADE)
 
 
 class Advertiser(BaseModel):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     phone = models.CharField(max_length=20, null=False, blank=False)
-    order = models.ForeignKey("Order", on_delete=models.CASCADE)
 
     def __str__(self):
         return f"{self.user} - {self.phone}"
 
 
-class Tool(BaseModel):
+class Item(BaseModel):
     name = models.CharField(max_length=50, null=False, blank=False)
     description = models.TextField(null=False, blank=False)
 
@@ -79,8 +77,11 @@ class Order(BaseModel):
         (STATUS_FINISHED, "Finished"),
     )
 
+    shipping_address = models.ForeignKey(
+        Address, on_delete=models.CASCADE, null=False, blank=False
+    )
     item = models.ForeignKey(
-        Tool, on_delete=models.CASCADE, null=False, blank=False
+        Item, on_delete=models.CASCADE, null=False, blank=False
     )
     status = models.CharField(
         max_length=20,
