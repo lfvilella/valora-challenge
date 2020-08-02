@@ -17,7 +17,13 @@ class OrderAPIView(views.APIView):
         return response.Response(serializer.data, status=status.HTTP_200_OK)
 
     def _list(self, request):
-        return response.Response([], status=status.HTTP_200_OK)
+        orders = models.Order.objects.all()
+        serializer_orders = []
+        for order in orders:
+            serializer = serializers.OrderSerializer(order)
+            serializer_orders.append(serializer.data)
+
+        return response.Response(serializer_orders, status=status.HTTP_200_OK)
 
     def get(self, request, order_id=None):
         if order_id:

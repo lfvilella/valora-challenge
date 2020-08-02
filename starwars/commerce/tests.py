@@ -127,6 +127,50 @@ class TestReadOrder(TestOrderBase):
         }
         self.assertEqual(response.json(), expected_value)
 
+    def test_list_order(self):
+        # Create two orders
+        order1 = self._create_fake_order()
+        order2 = self._create_fake_order()
+
+        response = self.client.get(f"/order/", {}, format="json")
+        self.assertEqual(response.status_code, 200)
+
+        expected_value = [
+            {
+                "item": {
+                    "name": order1.item.name,
+                    "description": order1.item.description,
+                },
+                "shipping_address": {
+                    "state": order1.shipping_address.state,
+                    "address": order1.shipping_address.address,
+                    "neighborhood": order1.shipping_address.neighborhood,
+                    "number": order1.shipping_address.number,
+                    "complement": order1.shipping_address.complement,
+                    "city": order1.shipping_address.city,
+                    "cep": order1.shipping_address.cep,
+                },
+                "status": order1.status,
+            },
+            {
+                "item": {
+                    "name": order2.item.name,
+                    "description": order2.item.description,
+                },
+                "shipping_address": {
+                    "state": order2.shipping_address.state,
+                    "address": order2.shipping_address.address,
+                    "neighborhood": order2.shipping_address.neighborhood,
+                    "number": order2.shipping_address.number,
+                    "complement": order2.shipping_address.complement,
+                    "city": order2.shipping_address.city,
+                    "cep": order2.shipping_address.cep,
+                },
+                "status": order2.status,
+            },
+        ]
+        self.assertEqual(response.json(), expected_value)
+
 
 class TestDeleteOrder(TestOrderBase):
     def test_delete_order(self):
