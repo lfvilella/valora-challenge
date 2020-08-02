@@ -8,7 +8,9 @@ def _create_fake_advertiser():
 
     password = "FakePassword"
     user = models.User.objects.create_user(
-        username="FakeUsername", password=password, email="fake@email.com",
+        username="FakeUsername",
+        password=password,
+        email="fake@email.com",
     )
     user.test_password = password
     user.save()
@@ -61,7 +63,7 @@ class TestOrderBase(APITestCase):
         advertiser = _create_fake_advertiser()
         self.client.login(
             username=advertiser.user.username,
-            password=advertiser.user.test_password,
+            password=advertiser.user.test_password
         )
         return advertiser
 
@@ -270,14 +272,14 @@ class TestReadAdvertiser(TestAdvertiserBase):
         advertiser = _create_fake_advertiser()
         self.client.login(
             username=advertiser.user.username,
-            password=advertiser.user.test_password,
+            password=advertiser.user.test_password
         )
 
         response = self.client.get("/advertiser/", {}, format="json")
 
         expected_value = {
-            "user": {"username": "FakeUsername", "email": "fake@email.com"},
-            "phone": "Fake Phone",
+            'user': {'username': 'FakeUsername', 'email': 'fake@email.com'},
+            'phone': 'Fake Phone'
         }
         self.assertEqual(response.json(), expected_value)
 
