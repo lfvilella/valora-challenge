@@ -17,15 +17,6 @@ class TestOrderBase(APITestCase):
             },
         }
 
-        self.data_advertiser = {
-            "user": {
-                "username": "FakeUsername",
-                "password": "Fake Password",
-                "email": "fake@email.com",
-            },
-            "phone": "Fake Phone",
-        }
-
     def _create_fake_order(self):
         order = models.Order()
         order.status = models.Order.STATUS_OPEN
@@ -208,9 +199,40 @@ class TestDeleteOrder(TestOrderBase):
 
 
 # Test Advertiser
-class TestCreateAdvertiser(TestOrderBase):
+class TestAdvertiserBase(APITestCase):
+    def setUp(self):
+        self.data = {
+            "user": {
+                "username": "FakeUsername",
+                "password": "Fake Password",
+                "email": "fake@email.com",
+            },
+            "phone": "Fake Phone",
+        }
+
+
+class TestCreateAdvertiser(TestAdvertiserBase):
     def test_returns_201(self):
         response = self.client.post(
-            "/advertiser/", self.data_advertiser, format="json"
+            "/advertiser/", self.data, format="json"
         )
         self.assertEqual(response.status_code, 201)
+
+    def test_saves_on_db(self):
+        self.assertEqual(models.Advertiser.objects.count(), 0)
+
+        self.client.post("/advertiser/", self.data, format="json")
+
+        self.assertEqual(models.Advertiser.objects.count(), 1)
+
+        advertiser = models.Advertiser.objects.all().first()
+
+        expected_value = {
+            "user": {
+                "username": advertiser.user.username,
+                "password": advertiser.user.password,
+                "email": advertiser.user.email,
+            },
+            "phone": advertiser.phone,
+        }
+        self.assertEqual(self.data, expected_value)
