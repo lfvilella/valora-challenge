@@ -56,6 +56,7 @@ def delete_order(order_id):
 
 # Advertiser
 
+
 def create_advertiser(validated_data):
     advertiser = models.Advertiser()
     advertiser.phone = validated_data["phone"]

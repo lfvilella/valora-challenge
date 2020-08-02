@@ -10,7 +10,7 @@ class TestOrderBase(APITestCase):
                 "state": "SP",
                 "address": "Fake Address",
                 "neighborhood": "Fake Neighborhood",
-                "number": 111,
+                "number": "111",
                 "complement": "Fake Complement",
                 "city": "Fake City",
                 "cep": "Fake Cep",
@@ -43,7 +43,7 @@ class TestOrderBase(APITestCase):
         shipping_address = models.Address(
             address="Fake Address",
             neighborhood="Fake Neighborhood",
-            number=111,
+            number="111",
             complement="Fake Complement",
             city="Fake City",
             cep="Fake CEP",
@@ -199,6 +199,8 @@ class TestDeleteOrder(TestOrderBase):
 
 
 # Test Advertiser
+
+
 class TestAdvertiserBase(APITestCase):
     def setUp(self):
         self.data = {
@@ -213,9 +215,7 @@ class TestAdvertiserBase(APITestCase):
 
 class TestCreateAdvertiser(TestAdvertiserBase):
     def test_returns_201(self):
-        response = self.client.post(
-            "/advertiser/", self.data, format="json"
-        )
+        response = self.client.post("/advertiser/", self.data, format="json")
         self.assertEqual(response.status_code, 201)
 
     def test_saves_on_db(self):

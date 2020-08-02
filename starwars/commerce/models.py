@@ -49,10 +49,13 @@ class Address(models.Model):
     )
     address = models.CharField(max_length=255, null=True, blank=True)
     neighborhood = models.CharField(max_length=255, null=True, blank=True)
-    number = models.IntegerField(null=True, blank=True)
+    number = models.CharField(max_length=25, null=True, blank=True)
     complement = models.CharField(max_length=20, null=True, blank=True)
     city = models.CharField(max_length=50, null=True, blank=True)
     cep = models.CharField(max_length=12, null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.city}/{self.state} - CEP: {self.cep}"
 
 
 class Advertiser(BaseModel):
