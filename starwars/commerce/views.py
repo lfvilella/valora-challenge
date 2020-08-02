@@ -1,15 +1,18 @@
 from django.shortcuts import get_object_or_404
+from django.utils.decorators import method_decorator
+from django.contrib.auth import decorators
 
 from rest_framework import views
 from rest_framework import response
 from rest_framework import status
+from rest_framework import permissions
 
 from . import models, serializers, services
 
 
 class OrderAPIView(views.APIView):
 
-    serializer_class = serializers.OrderSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
     def _detail(self, request, order_id):
         order = get_object_or_404(models.Order, pk=order_id)
@@ -78,6 +81,7 @@ class OrderAPIView(views.APIView):
 
 
 class AdvertiserAPIView(views.APIView):
+    @method_decorator(decorators.login_required)
     def get(self, request):
         advertiser = services.get_advertiser_by_id(request.user.pk)
         serializer = serializers.AdvertiserGetSerializer(advertiser)
