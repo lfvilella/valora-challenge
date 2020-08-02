@@ -60,7 +60,7 @@ def create_advertiser(validated_data):
     advertiser = models.Advertiser()
     advertiser.phone = validated_data["phone"]
 
-    user=models.User(
+    user = models.User(
         username=validated_data["user"]["username"],
         password=validated_data["user"]["password"],
         email=validated_data["user"].get("email"),
