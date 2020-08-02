@@ -206,11 +206,28 @@ class TestAdvertiserBase(APITestCase):
         self.data = {
             "user": {
                 "username": "FakeUsername",
-                "password": "Fake Password",
+                "password": "FakePassword",
                 "email": "fake@email.com",
             },
             "phone": "Fake Phone",
         }
+
+    def _create_fake_advertiser(self):
+        advertiser = models.Advertiser()
+        advertiser.phone = "Fake Phone"
+
+        password = "FakePassword"
+        user = models.User.objects.create_user(
+            username="FakeUsername",
+            password=password,
+            email="fake@email.com",
+        )
+        user.test_password = password
+        user.save()
+
+        advertiser.user = user
+        advertiser.save()
+        return advertiser
 
 
 class TestCreateAdvertiser(TestAdvertiserBase):
@@ -236,3 +253,20 @@ class TestCreateAdvertiser(TestAdvertiserBase):
             "phone": advertiser.phone,
         }
         self.assertEqual(self.data, expected_value)
+
+
+class TestReadAdvertiser(TestAdvertiserBase):
+    def test_get_logged_user(self):
+        advertiser = self._create_fake_advertiser()
+        self.client.login(
+            username=advertiser.user.username,
+            password=advertiser.user.test_password
+        )
+
+        response = self.client.get("/advertiser/", {}, format="json")
+
+        expected_value = {
+            'user': {'username': 'FakeUsername', 'email': 'fake@email.com'},
+            'phone': 'Fake Phone'
+        }
+        self.assertEqual(response.json(), expected_value)

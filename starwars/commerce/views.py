@@ -78,6 +78,11 @@ class OrderAPIView(views.APIView):
 
 
 class AdvertiserAPIView(views.APIView):
+    def get(self, request):
+        advertiser = services.get_advertiser_by_id(request.user.pk)
+        serializer = serializers.AdvertiserGetSerializer(advertiser)
+        return response.Response(serializer.data, status=status.HTTP_200_OK)
+
     def post(self, request):
         serializer = serializers.AdvertiserSerializer(data=request.data)
         if not serializer.is_valid():

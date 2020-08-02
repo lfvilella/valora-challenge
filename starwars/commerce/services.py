@@ -71,3 +71,7 @@ def create_advertiser(validated_data):
     advertiser.user = user
     advertiser.save()
     return advertiser
+
+
+def get_advertiser_by_id(user_id):
+    return models.Advertiser.objects.get(user__id=user_id)

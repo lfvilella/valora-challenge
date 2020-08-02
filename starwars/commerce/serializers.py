@@ -9,10 +9,24 @@ class ItemSerializer(serializers.ModelSerializer):
         fields = ["name", "description"]
 
 
+class UserDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.User
+        fields = ["username", "email"]
+
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.User
         fields = ["username", "password", "email"]
+
+
+class AdvertiserGetSerializer(serializers.ModelSerializer):
+    user = UserDetailSerializer(required=True)
+
+    class Meta:
+        model = models.Advertiser
+        fields = ["user", "phone"]
 
 
 class AdvertiserSerializer(serializers.ModelSerializer):
