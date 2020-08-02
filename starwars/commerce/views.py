@@ -1,35 +1,71 @@
-from rest_framework import decorators
+from django.shortcuts import get_object_or_404
+
+from rest_framework import views
 from rest_framework import response
 from rest_framework import status
 
-from . import models, serializers
+from . import models, serializers, services
 
 
-@decorators.api_view(["POST"])
-def create_order(request):
-    serializer = serializers.OrderSerializer(data=request.data)
-    if not serializer.is_valid():
+class OrderAPIView(views.APIView):
+
+    serializer_class = serializers.OrderSerializer
+
+    def _detail(self, request, order_id):
+        order = get_object_or_404(models.Order, pk=order_id)
+        serializer = serializers.OrderSerializer(order)
+        return response.Response(serializer.data, status=status.HTTP_200_OK)
+
+    def _list(self, request):
+        return response.Response([], status=status.HTTP_200_OK)
+
+    def get(self, request, order_id=None):
+        if order_id:
+            return self._detail(request, order_id)
+        return self._list(request)
+
+    def post(self, request):
+        serializer = serializers.OrderSerializer(data=request.data)
+        if not serializer.is_valid():
+            return response.Response(
+                serializer.errors, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        serializer.save()
         return response.Response(
-            serializer.errors, status=status.HTTP_400_BAD_REQUEST
+            serializer.data, status=status.HTTP_201_CREATED
         )
 
-    serializer.save()
-    return response.Response(serializer.data, status=status.HTTP_201_CREATED)
+    def put(self, request, order_id):
+        order = get_object_or_404(models.Order, pk=order_id)
 
-
-@decorators.api_view(["PUT"])
-def update_order(request, order_id):
-    order = None
-    try:
-        order = models.Order.objects.get(pk=order_id)
-    except models.Order.DoesNotExist:
-        return response.Response({}, status=status.HTTP_404_NOT_FOUND)
-
-    serializer = serializers.OrderSerializer(instance=order, data=request.data)
-    if not serializer.is_valid():
-        return response.Response(
-            serializer.errors, status=status.HTTP_400_BAD_REQUEST
+        serializer = serializers.OrderSerializer(
+            instance=order, data=request.data
         )
+        if not serializer.is_valid():
+            return response.Response(
+                serializer.errors, status=status.HTTP_400_BAD_REQUEST
+            )
 
-    serializer.save()
-    return response.Response(serializer.data, status=status.HTTP_200_OK)
+        serializer.save()
+        return response.Response(serializer.data, status=status.HTTP_200_OK)
+
+    def delete(self, request, order_id):
+        order = get_object_or_404(models.Order, pk=order_id)
+        services.delete_order(order.pk)
+
+        return response.Response({}, status=status.HTTP_204_NO_CONTENT)
+
+    def patch(self, request, order_id):
+        order = get_object_or_404(models.Order, pk=order_id)
+
+        serializer = serializers.OrderPatchSerializer(
+            instance=order, data=request.data
+        )
+        if not serializer.is_valid():
+            return response.Response(
+                serializer.errors, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        serializer.save()
+        return response.Response(serializer.data, status=status.HTTP_200_OK)

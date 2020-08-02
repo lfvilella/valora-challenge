@@ -2,21 +2,22 @@ from rest_framework.test import APITestCase
 from . import models
 
 
-class TestOrderAPI(APITestCase):
-    def test_create_order(self):
-        data = {
+class TestOrderBase(APITestCase):
+    def setUp(self):
+        self.data = {
             "item": {"name": "engine", "description": "engine c3po"},
-            "shipping_address": {"state": "SP"},
+            "shipping_address": {
+                "state": "SP",
+                "address": "Fake Address",
+                "neighborhood": "Fake Neighborhood",
+                "number": 111,
+                "complement": "Fake Complement",
+                "city": "Fake City",
+                "cep": "Fake Cep",
+            },
         }
 
-        self.assertEqual(models.Order.objects.count(), 0)
-
-        response = self.client.post("/order/", data, format="json")
-        self.assertEqual(response.status_code, 201)
-
-        self.assertEqual(models.Order.objects.count(), 1)
-
-    def test_update_order(self):
+    def _create_fake_order(self):
         order = models.Order()
         order.status = models.Order.STATUS_OPEN
 
@@ -24,16 +25,115 @@ class TestOrderAPI(APITestCase):
         item.save()
         order.item = item
 
-        shipping_address = models.Address(state="SP")
+        shipping_address = models.Address(
+            address="Fake Address",
+            neighborhood="Fake Neighborhood",
+            number=111,
+            complement="Fake Complement",
+            city="Fake City",
+            cep="Fake CEP",
+        )
         shipping_address.save()
 
         order.shipping_address = shipping_address
         order.save()
+        return order
 
-        data = {
-            "item": {"name": "engine", "description": "engine c3po"},
-            "shipping_address": {"state": "SP"},
+
+class TestCreateOrder(TestOrderBase):
+    def test_returns_201(self):
+        response = self.client.post("/order/", self.data, format="json")
+        self.assertEqual(response.status_code, 201)
+
+    def test_saves_on_db(self):
+        self.assertEqual(models.Order.objects.count(), 0)
+
+        self.client.post("/order/", self.data, format="json")
+
+        self.assertEqual(models.Order.objects.count(), 1)
+
+        order = models.Order.objects.all().first()
+
+        expected_value = {
+            "item": {
+                "name": order.item.name,
+                "description": order.item.description,
+            },
+            "shipping_address": {
+                "state": order.shipping_address.state,
+                "address": order.shipping_address.address,
+                "neighborhood": order.shipping_address.neighborhood,
+                "number": order.shipping_address.number,
+                "complement": order.shipping_address.complement,
+                "city": order.shipping_address.city,
+                "cep": order.shipping_address.cep,
+            },
         }
+        self.assertEqual(self.data, expected_value)
 
-        response = self.client.put(f"/order/{order.pk}", data, format="json")
+    def test_create_order_default_status_is_open(self):
+        self.client.post("/order/", self.data, format="json")
+
+        order = models.Order.objects.all().first()
+        self.assertEqual(order.status, "open")
+
+
+class TestUpdateOrder(TestOrderBase):
+    def test_update_order(self):
+        order = self._create_fake_order()
+
+        response = self.client.put(
+            f"/order/{order.pk}", self.data, format="json"
+        )
         self.assertEqual(response.status_code, 200)
+
+        order.refresh_from_db()
+        self.assertEqual(order.item.name, "engine")
+
+    def test_finalize_order(self):
+        order = self._create_fake_order()
+        self.assertEqual(order.status, "open")
+
+        data = {"status": "finished"}
+        response = self.client.patch(f"/order/{order.pk}", data, format="json")
+        self.assertEqual(response.status_code, 200)
+
+        order.refresh_from_db()
+        self.assertEqual(order.status, "finished")
+
+
+class TestReadOrder(TestOrderBase):
+    def test_get_order(self):
+        order = self._create_fake_order()
+
+        response = self.client.get(f"/order/{order.pk}", {}, format="json")
+        self.assertEqual(response.status_code, 200)
+
+        expected_value = {
+            "item": {
+                "name": order.item.name,
+                "description": order.item.description,
+            },
+            "shipping_address": {
+                "state": order.shipping_address.state,
+                "address": order.shipping_address.address,
+                "neighborhood": order.shipping_address.neighborhood,
+                "number": order.shipping_address.number,
+                "complement": order.shipping_address.complement,
+                "city": order.shipping_address.city,
+                "cep": order.shipping_address.cep,
+            },
+            "status": order.status,
+        }
+        self.assertEqual(response.json(), expected_value)
+
+
+class TestDeleteOrder(TestOrderBase):
+    def test_delete_order(self):
+        order = self._create_fake_order()
+        self.assertEqual(models.Order.objects.count(), 1)
+
+        response = self.client.delete(f"/order/{order.pk}", {}, format="json")
+        self.assertEqual(response.status_code, 204)
+
+        self.assertEqual(models.Order.objects.count(), 0)

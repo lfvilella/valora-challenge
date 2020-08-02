@@ -6,13 +6,33 @@ from . import services
 class ItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Item
-        fields = ["id", "name", "description"]
+        fields = ["name", "description"]
 
 
 class AddressSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Address
-        fields = ["state"]
+        fields = [
+            "state",
+            "address",
+            "neighborhood",
+            "number",
+            "complement",
+            "city",
+            "cep",
+        ]
+
+
+class OrderPatchSerializer(serializers.ModelSerializer):
+    item = ItemSerializer(required=False)
+    shipping_address = AddressSerializer(required=False)
+
+    class Meta:
+        model = models.Order
+        fields = ["item", "shipping_address", "status"]
+
+    def update(self, instance, validated_data):
+        return services.update_order(instance.pk, validated_data)
 
 
 class OrderSerializer(serializers.ModelSerializer):
