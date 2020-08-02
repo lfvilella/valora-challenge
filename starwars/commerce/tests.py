@@ -132,7 +132,7 @@ class TestReadOrder(TestOrderBase):
         order1 = self._create_fake_order()
         order2 = self._create_fake_order()
 
-        response = self.client.get(f"/order/", {}, format="json")
+        response = self.client.get("/order/", {}, format="json")
         self.assertEqual(response.status_code, 200)
 
         expected_value = [
