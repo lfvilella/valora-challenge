@@ -1,3 +1,5 @@
+# import uuid
+
 from django.db import models
 from django.contrib.auth.models import User
 
@@ -6,6 +8,7 @@ class BaseModel(models.Model):
     class Meta:
         abstract = True
 
+# id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     created_at = models.DateTimeField(auto_now_add=True)
     last_change = models.DateTimeField(auto_now=True)
 
@@ -77,6 +80,9 @@ class Order(BaseModel):
         (STATUS_FINISHED, "Finished"),
     )
 
+    # advertiser = models.ForeignKey(
+    #     Advertiser, on_delete=models.CASCADE, null=False, blank=False
+    # )
     shipping_address = models.ForeignKey(
         Address, on_delete=models.CASCADE, null=False, blank=False
     )

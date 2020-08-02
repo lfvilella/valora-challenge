@@ -17,14 +17,38 @@ class TestOrderBase(APITestCase):
             },
         }
 
+        self.data_advertiser = {
+            "user": {
+                "username": "FakeUsername",
+                "password": "Fake Password",
+                "email": "fake@email.com",
+            },
+            "phone": "Fake Phone",
+        }
+
     def _create_fake_order(self):
         order = models.Order()
         order.status = models.Order.STATUS_OPEN
 
+        # # Create Advertiser
+        # advertiser = models.Advertiser(
+        #     user=models.User(
+        #         username="FakeUsername",
+        #         password="FakePassword",
+        #         email="fake@email.com",
+        #     ),
+        #     phone="Fake Phone",
+        # )
+        # advertiser.user.save()
+        # advertiser.save()
+        # order.advertiser = advertiser
+
+        # Create Item
         item = models.Item(name="xyz", description="xyz")
         item.save()
         order.item = item
 
+        # Create Shipping_Address
         shipping_address = models.Address(
             address="Fake Address",
             neighborhood="Fake Neighborhood",
@@ -181,3 +205,12 @@ class TestDeleteOrder(TestOrderBase):
         self.assertEqual(response.status_code, 204)
 
         self.assertEqual(models.Order.objects.count(), 0)
+
+
+# Test Advertiser
+class TestCreateAdvertiser(TestOrderBase):
+    def test_returns_201(self):
+        response = self.client.post(
+            "/advertiser/", self.data_advertiser, format="json"
+        )
+        self.assertEqual(response.status_code, 201)

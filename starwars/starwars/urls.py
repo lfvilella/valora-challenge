@@ -22,6 +22,5 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("order/", views.OrderAPIView.as_view()),
     path("order/<int:order_id>", views.OrderAPIView.as_view()),
-    # path("order/", views.create_order),
-    # path("order/<int:order_id>", views.update_order),
+    path("advertiser/", views.AdvertiserAPIView.as_view()),
 ]

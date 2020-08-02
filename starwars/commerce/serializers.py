@@ -9,6 +9,23 @@ class ItemSerializer(serializers.ModelSerializer):
         fields = ["name", "description"]
 
 
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.User
+        fields = ["username", "password", "email"]
+
+
+class AdvertiserSerializer(serializers.ModelSerializer):
+    user = UserSerializer(required=True)
+
+    class Meta:
+        model = models.Advertiser
+        fields = ["user", "phone"]
+
+    def create(self, validated_data):
+        return services.create_advertiser(validated_data)
+
+
 class AddressSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Address
