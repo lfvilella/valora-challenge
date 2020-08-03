@@ -322,6 +322,98 @@ class TestDeleteOrder(TestOrderBase):
         self.assertEqual(response.status_code, 404)
 
 
+# Test Manager/adm
+
+class TestAdministrador(TestOrderBase):
+    def _create_fake_admin(self):
+        advertiser = models.Advertiser()
+        advertiser.phone = "Admin Fake Phone"
+
+        password = "AdminFakePassword"
+        user = models.User.objects.create_user(
+            username=str(uuid.uuid4()),
+            password=password,
+            email="fake@email.com",
+            is_superuser=True,
+        )
+        user.test_password = password
+        user.save()
+
+        advertiser.user = user
+        advertiser.save()
+        return advertiser
+
+    def test_create_superuser(self):
+        adm = self._create_fake_admin()
+        self.assertEqual(adm.user.is_superuser, True)
+
+    def test_get_order(self):
+        advertiser = self._create_and_log_in_user()
+        order = self._create_fake_order(advertiser_id=advertiser.pk)
+
+        adm = self._create_fake_admin()
+        self.client.login(
+            username=adm.user.username,
+            password=adm.user.test_password,
+        )
+
+        response = self.client.get(f"/order/{order.pk}", {}, format="json")
+        self.assertEqual(response.status_code, 200)
+
+    def test_list_order(self):
+        advertiser1 = self._create_and_log_in_user()
+        order1 = self._create_fake_order(advertiser_id=advertiser1.pk)
+
+        advertiser2 = self._create_and_log_in_user()
+        order2 = self._create_fake_order(advertiser_id=advertiser2.pk)
+
+        adm = self._create_fake_admin()
+        self.client.login(
+            username=adm.user.username,
+            password=adm.user.test_password,
+        )
+        response = self.client.get("/order/", {}, format="json")
+        self.assertEqual(response.status_code, 200)
+
+        expected_value = [
+            {
+                "item": {
+                    "name": order1.item.name,
+                    "description": order1.item.description,
+                },
+                "shipping_address": {
+                    "state": order1.shipping_address.state,
+                    "address": order1.shipping_address.address,
+                    "neighborhood": order1.shipping_address.neighborhood,
+                    "number": order1.shipping_address.number,
+                    "complement": order1.shipping_address.complement,
+                    "city": order1.shipping_address.city,
+                    "cep": order1.shipping_address.cep,
+                },
+                "status": order1.status,
+            },
+            {
+                "item": {
+                    "name": order2.item.name,
+                    "description": order2.item.description,
+                },
+                "shipping_address": {
+                    "state": order2.shipping_address.state,
+                    "address": order2.shipping_address.address,
+                    "neighborhood": order2.shipping_address.neighborhood,
+                    "number": order2.shipping_address.number,
+                    "complement": order2.shipping_address.complement,
+                    "city": order2.shipping_address.city,
+                    "cep": order2.shipping_address.cep,
+                },
+                "status": order2.status,
+            },
+        ]
+        self.assertEqual(response.json(), expected_value)
+
+
+
+
 # Test Advertiser
 
 
