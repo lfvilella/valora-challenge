@@ -70,7 +70,6 @@ class TestLogout(APITestCase):
         self.assertEqual(response.status_code, 302)
 
 
-
 class TestOrderBase(APITestCase):
     def setUp(self):
         self.data = {
