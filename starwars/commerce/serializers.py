@@ -79,10 +79,19 @@ class OrderPatchSerializer(serializers.ModelSerializer):
         fields = ["item", "shipping_address", "status"]
 
 
-class OrderSerializer(serializers.ModelSerializer):
+class OrderCreateSerializer(serializers.ModelSerializer):
     item = ItemSerializer(required=True)
     shipping_address = AddressSerializer(required=True)
 
     class Meta:
         model = models.Order
         fields = ["item", "shipping_address", "status"]
+
+
+class OrderSerializer(serializers.ModelSerializer):
+    item = ItemSerializer(required=True)
+    shipping_address = AddressSerializer(required=True)
+
+    class Meta:
+        model = models.Order
+        fields = ["id", "item", "shipping_address", "status"]

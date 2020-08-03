@@ -23,5 +23,5 @@ urlpatterns = [
     path("order/", views.OrderAPIView.as_view()),
     path("order/<int:order_id>", views.OrderAPIView.as_view()),
     path("advertiser/", views.AdvertiserAPIView.as_view()),
-    path("user-auth/", views.LoginAPIView.as_view()),
+    path("user-auth/", views.UserAuthView.as_view()),
 ]

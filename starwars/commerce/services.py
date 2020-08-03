@@ -109,12 +109,11 @@ def create_advertiser(validated_data):
     advertiser = models.Advertiser()
     advertiser.phone = validated_data["phone"]
 
-    user = models.User(
+    user = models.User.objects.create_user(
         username=validated_data["user"]["username"],
         password=validated_data["user"]["password"],
-        email=validated_data["user"].get("email"),
+        email=validated_data["user"].get("email")
     )
-    user.save()
 
     advertiser.user = user
     advertiser.save()

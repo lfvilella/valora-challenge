@@ -225,6 +225,7 @@ class TestReadOrder(TestOrderBase):
         self.assertEqual(response.status_code, 200)
 
         expected_value = {
+            "id": order.pk,
             "item": {
                 "name": order.item.name,
                 "description": order.item.description,
@@ -261,6 +262,7 @@ class TestReadOrder(TestOrderBase):
 
         expected_value = [
             {
+                "id": order1.pk,
                 "item": {
                     "name": order1.item.name,
                     "description": order1.item.description,
@@ -277,6 +279,7 @@ class TestReadOrder(TestOrderBase):
                 "status": order1.status,
             },
             {
+                "id": order2.pk,
                 "item": {
                     "name": order2.item.name,
                     "description": order2.item.description,
@@ -309,7 +312,7 @@ class TestDeleteOrder(TestOrderBase):
         self.assertEqual(models.Order.objects.count(), 1)
 
         response = self.client.delete(f"/order/{order.pk}", {}, format="json")
-        self.assertEqual(response.status_code, 204)
+        self.assertEqual(response.status_code, 200)
 
         self.assertEqual(models.Order.objects.count(), 0)
 
@@ -376,6 +379,7 @@ class TestAdministrador(TestOrderBase):
 
         expected_value = [
             {
+                "id": order1.pk,
                 "item": {
                     "name": order1.item.name,
                     "description": order1.item.description,
@@ -392,6 +396,7 @@ class TestAdministrador(TestOrderBase):
                 "status": order1.status,
             },
             {
+                "id": order2.pk,
                 "item": {
                     "name": order2.item.name,
                     "description": order2.item.description,
@@ -425,7 +430,7 @@ class TestAdministrador(TestOrderBase):
             username=adm.user.username, password=adm.user.test_password,
         )
         response = self.client.delete(f"/order/{order.pk}", {}, format="json")
-        self.assertEqual(response.status_code, 204)
+        self.assertEqual(response.status_code, 200)
 
         self.assertEqual(models.Order.objects.count(), 0)
 
@@ -453,7 +458,7 @@ class TestCreateAdvertiser(TestAdvertiserBase):
     def test_saves_on_db(self):
         self.assertEqual(models.Advertiser.objects.count(), 0)
 
-        self.client.post("/advertiser/", self.data, format="json")
+        response = self.client.post("/advertiser/", self.data, format="json")
 
         self.assertEqual(models.Advertiser.objects.count(), 1)
 
@@ -461,13 +466,25 @@ class TestCreateAdvertiser(TestAdvertiserBase):
 
         expected_value = {
             "user": {
+                "id": advertiser.user.pk,
                 "username": advertiser.user.username,
-                "password": advertiser.user.password,
-                "email": advertiser.user.email,
+                "email": advertiser.user.email
             },
             "phone": advertiser.phone,
         }
-        self.assertEqual(self.data, expected_value)
+        self.assertEqual(response.json(), expected_value)
+
+    def test_allow_login_after_creation(self):
+        self.client.post("/advertiser/", self.data, format="json")
+
+        login_data = {
+            'username': self.data['user']['username'],
+            'password': self.data['user']['password'],
+        }
+        login_response = self.client.post(
+            "/user-auth/", login_data, format="json"
+        )
+        self.assertEqual(login_response.status_code, 200)
 
 
 class TestReadAdvertiser(TestAdvertiserBase):
