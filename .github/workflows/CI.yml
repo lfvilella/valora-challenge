@@ -24,3 +24,6 @@ jobs:
     - name: Lint with flake8
       run: |
         flake8 .
+    - name: Tests
+      run: |
+        cd starwars && python3 manage.py test

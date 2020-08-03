@@ -14,7 +14,7 @@ build: delete-container ## Build the container
 	@docker-compose up -d
 
 test: start ## Run tests
-	@docker-compose exec backend pytest
+	@docker-compose exec app /bin/bash -c "./manage.py test"
 
 restart: ## Restart the container
 	@docker-compose restart app

@@ -4,20 +4,11 @@ from django.utils.html import format_html
 from . import models
 
 
-class AdvertiserInline(admin.StackedInline):
-    model = models.Advertiser
-    max_num = 1
-
-
-class AddressInline(admin.StackedInline):
-    model = models.Address
-    max_num = 1
-
-
 @admin.register(models.Order)
 class OrderAdmin(admin.ModelAdmin):
     list_display = ["item", "order_status"]
-    inlines = [AdvertiserInline, AddressInline]
+    search_fields = ["item__name", "shipping_address__cep"]
+    list_filter = ["status"]
 
     def order_status(self, order):
         if order.status == "finished":
@@ -45,9 +36,21 @@ class OrderAdmin(admin.ModelAdmin):
 
 @admin.register(models.Advertiser)
 class AdvertiserAdmin(admin.ModelAdmin):
-    search_fields = ["phone"]
+    search_fields = ["phone", "user__username"]
 
 
-@admin.register(models.Tool)
-class ToolAdmin(admin.ModelAdmin):
+@admin.register(models.Address)
+class AddressAdmin(admin.ModelAdmin):
+    fields = (
+        ("state",),
+        ("city", "cep"),
+        ("address", "number"),
+        ("neighborhood", "complement"),
+    )
+
+    search_fields = ["state", "cep", "city"]
+
+
+@admin.register(models.Item)
+class ItemAdmin(admin.ModelAdmin):
     search_fields = ["name"]

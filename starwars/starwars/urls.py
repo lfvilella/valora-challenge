@@ -16,6 +16,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
+from commerce import views
+
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("order/", views.OrderAPIView.as_view()),
+    path("order/<int:order_id>", views.OrderAPIView.as_view()),
+    path("advertiser/", views.AdvertiserAPIView.as_view()),
 ]
