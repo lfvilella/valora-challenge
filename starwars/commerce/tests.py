@@ -146,11 +146,13 @@ class TestUpdateOrder(TestOrderBase):
         self.assertEqual(order.item.name, "engine")
 
     def test_update_order_with_invalid_user(self):
+        self._create_and_log_in_user()
+
         order = self._create_fake_order(other_advertiser=True)
         response = self.client.put(
             f"/order/{order.pk}", self.data, format="json"
         )
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
 
     def test_finalize_order(self):
         self._create_and_log_in_user()
@@ -197,7 +199,7 @@ class TestReadOrder(TestOrderBase):
         self._create_and_log_in_user()
         order = self._create_fake_order(other_advertiser=True)
         response = self.client.get(f"/order/{order.pk}", {}, format="json")
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
 
     def test_list_order(self):
         self._create_and_log_in_user()
@@ -274,7 +276,7 @@ class TestDeleteOrder(TestOrderBase):
         order = self._create_fake_order(other_advertiser=True)
 
         response = self.client.delete(f"/order/{order.pk}", {}, format="json")
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
 
 
 # Test Advertiser

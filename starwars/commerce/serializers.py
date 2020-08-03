@@ -62,9 +62,6 @@ class OrderPatchSerializer(serializers.ModelSerializer):
         model = models.Order
         fields = ["item", "shipping_address", "status"]
 
-    def update(self, instance, validated_data):
-        return validated_data
-
 
 class OrderSerializer(serializers.ModelSerializer):
     item = ItemSerializer(required=True)
@@ -73,9 +70,3 @@ class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Order
         fields = ["item", "shipping_address", "status"]
-
-    def create(self, validated_data):
-        return validated_data
-
-    def update(self, instance, validated_data):
-        return validated_data
