@@ -7,15 +7,15 @@ Selective process challenge.
 
 # Running locally
 
-$ make build
+    $ make build
 
-$ make createsuperuser
+    $ make createsuperuser
 
-$ make up
+    $ make up
 
 Optional:
 
-$ make test
+    $ make test
 
 
 # Postman Test
