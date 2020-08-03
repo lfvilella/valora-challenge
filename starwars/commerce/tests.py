@@ -434,6 +434,38 @@ class TestAdministrador(TestOrderBase):
 
         self.assertEqual(models.Order.objects.count(), 0)
 
+    def test_update_order(self):
+        advertiser = _create_fake_advertiser()
+        order = self._create_fake_order(advertiser_id=advertiser.pk)
+
+        adm = self._create_fake_admin()
+        self.client.login(
+            username=adm.user.username, password=adm.user.test_password,
+        )
+
+        self.assertNotEqual(advertiser.pk, adm.pk)
+
+        response = self.client.put(
+            f"/order/{order.pk}", self.data, format="json"
+        )
+        self.assertEqual(response.status_code, 200)
+
+    def test_finalize_order(self):
+        advertiser = self._create_and_log_in_user()
+        order = self._create_fake_order(advertiser_id=advertiser.pk)
+
+        self.assertEqual(order.status, "open")
+
+        adm = self._create_fake_admin()
+        self.client.login(
+            username=adm.user.username, password=adm.user.test_password,
+        )
+        data = {"status": "finished"}
+        response = self.client.patch(f"/order/{order.pk}", data, format="json")
+        self.assertEqual(response.status_code, 200)
+
+        order.refresh_from_db()
+        self.assertEqual(order.status, "finished")
 
 # Test Advertiser
 
