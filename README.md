@@ -8,7 +8,9 @@ Selective process challenge.
 # Running locally
 
 $ make build
+
 $ make createsuperuser
+
 $ make up
 
 Optional:
