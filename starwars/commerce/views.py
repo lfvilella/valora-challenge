@@ -14,13 +14,21 @@ class OrderAPIView(views.APIView):
 
     permission_classes = [permissions.IsAuthenticated]
 
+    def _check_users(self, advertiser_id, user_id):
+        if advertiser_id != user_id:
+            return response.Response({}, status=status.HTTP_403_FORBIDDEN)
+
     def _detail(self, request, order_id):
         order = get_object_or_404(models.Order, pk=order_id)
+        # Needs to check why it doesn't work using self._check_users(...) !!!!
+        if order.advertiser.id != request.user.pk:
+            return response.Response({}, status=status.HTTP_403_FORBIDDEN)
+
         serializer = serializers.OrderSerializer(order)
         return response.Response(serializer.data, status=status.HTTP_200_OK)
 
     def _list(self, request):
-        orders = models.Order.objects.all()
+        orders = models.Order.objects.filter(advertiser_id=request.user.pk)
         serializer_orders = []
         for order in orders:
             serializer = serializers.OrderSerializer(order)
@@ -40,6 +48,10 @@ class OrderAPIView(views.APIView):
                 serializer.errors, status=status.HTTP_400_BAD_REQUEST
             )
 
+        services.create_order(
+            validated_data=serializer.validated_data, user_id=request.user.pk
+        )
+
         serializer.save()
         return response.Response(
             serializer.data, status=status.HTTP_201_CREATED
@@ -47,6 +59,7 @@ class OrderAPIView(views.APIView):
 
     def put(self, request, order_id):
         order = get_object_or_404(models.Order, pk=order_id)
+        self._check_users(order.advertiser.id, request.user.pk)
 
         serializer = serializers.OrderSerializer(
             instance=order, data=request.data
@@ -56,17 +69,28 @@ class OrderAPIView(views.APIView):
                 serializer.errors, status=status.HTTP_400_BAD_REQUEST
             )
 
+        services.update_order(
+            order_id=order.pk,
+            validated_data=serializer.validated_data,
+            user_id=request.user.pk,
+        )
+
         serializer.save()
         return response.Response(serializer.data, status=status.HTTP_200_OK)
 
     def delete(self, request, order_id):
         order = get_object_or_404(models.Order, pk=order_id)
+        # Needs to check why it doesn't work using self._check_users(...) !!!!
+        if order.advertiser.id != request.user.pk:
+            return response.Response({}, status=status.HTTP_403_FORBIDDEN)
+
         services.delete_order(order.pk)
 
         return response.Response({}, status=status.HTTP_204_NO_CONTENT)
 
     def patch(self, request, order_id):
         order = get_object_or_404(models.Order, pk=order_id)
+        self._check_users(order.advertiser.id, request.user.pk)
 
         serializer = serializers.OrderPatchSerializer(
             instance=order, data=request.data
@@ -75,6 +99,12 @@ class OrderAPIView(views.APIView):
             return response.Response(
                 serializer.errors, status=status.HTTP_400_BAD_REQUEST
             )
+
+        services.update_order(
+            order_id=order.pk,
+            validated_data=serializer.validated_data,
+            user_id=request.user.pk,
+        )
 
         serializer.save()
         return response.Response(serializer.data, status=status.HTTP_200_OK)

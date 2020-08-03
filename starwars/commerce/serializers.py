@@ -63,7 +63,7 @@ class OrderPatchSerializer(serializers.ModelSerializer):
         fields = ["item", "shipping_address", "status"]
 
     def update(self, instance, validated_data):
-        return services.update_order(instance.pk, validated_data)
+        return validated_data
 
 
 class OrderSerializer(serializers.ModelSerializer):
@@ -75,7 +75,7 @@ class OrderSerializer(serializers.ModelSerializer):
         fields = ["item", "shipping_address", "status"]
 
     def create(self, validated_data):
-        return services.create_order(validated_data)
+        return validated_data
 
     def update(self, instance, validated_data):
-        return services.update_order(instance.pk, validated_data)
+        return validated_data

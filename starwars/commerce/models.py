@@ -83,9 +83,9 @@ class Order(BaseModel):
         (STATUS_FINISHED, "Finished"),
     )
 
-    # advertiser = models.ForeignKey(
-    #     Advertiser, on_delete=models.CASCADE, null=False, blank=False
-    # )
+    advertiser = models.ForeignKey(
+        Advertiser, on_delete=models.CASCADE, null=False, blank=False
+    )
     shipping_address = models.ForeignKey(
         Address, on_delete=models.CASCADE, null=False, blank=False
     )

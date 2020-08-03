@@ -8,9 +8,7 @@ def _create_fake_advertiser():
 
     password = "FakePassword"
     user = models.User.objects.create_user(
-        username="FakeUsername",
-        password=password,
-        email="fake@email.com",
+        username="FakeUsername", password=password, email="fake@email.com",
     )
     user.test_password = password
     user.save()
@@ -35,7 +33,7 @@ class TestOrderBase(APITestCase):
             },
         }
 
-    def _create_fake_order(self):
+    def _create_fake_order(self, other_advertiser=False):
         order = models.Order()
         order.status = models.Order.STATUS_OPEN
 
@@ -54,8 +52,21 @@ class TestOrderBase(APITestCase):
             cep="Fake CEP",
         )
         shipping_address.save()
-
         order.shipping_address = shipping_address
+
+        # Create Advertiser
+        advertiser = models.Advertiser.objects.all().first()
+        if other_advertiser:
+            advertiser = models.Advertiser(phone="Phone Fake")
+            user = models.User.objects.create_user(
+                username="UsernFakeAgain", password="PasswordFakeEkaf"
+            )
+            user.save()
+
+            advertiser.user = user
+            advertiser.save()
+
+        order.advertiser = advertiser
         order.save()
         return order
 
@@ -63,7 +74,7 @@ class TestOrderBase(APITestCase):
         advertiser = _create_fake_advertiser()
         self.client.login(
             username=advertiser.user.username,
-            password=advertiser.user.test_password
+            password=advertiser.user.test_password,
         )
         return advertiser
 
@@ -111,6 +122,14 @@ class TestCreateOrder(TestOrderBase):
         order = models.Order.objects.all().first()
         self.assertEqual(order.status, "open")
 
+    def test_check_logged_user_is_advertiser(self):
+        advertiser = self._create_and_log_in_user()
+
+        self.client.post("/order/", self.data, format="json")
+
+        order = models.Order.objects.all().first()
+        self.assertEqual(order.advertiser, advertiser)
+
 
 class TestUpdateOrder(TestOrderBase):
     def test_update_order(self):
@@ -125,6 +144,13 @@ class TestUpdateOrder(TestOrderBase):
 
         order.refresh_from_db()
         self.assertEqual(order.item.name, "engine")
+
+    def test_update_order_with_invalid_user(self):
+        order = self._create_fake_order(other_advertiser=True)
+        response = self.client.put(
+            f"/order/{order.pk}", self.data, format="json"
+        )
+        self.assertEqual(response.status_code, 403)
 
     def test_finalize_order(self):
         self._create_and_log_in_user()
@@ -166,6 +192,12 @@ class TestReadOrder(TestOrderBase):
             "status": order.status,
         }
         self.assertEqual(response.json(), expected_value)
+
+    def test_get_order_with_invalid_user(self):
+        self._create_and_log_in_user()
+        order = self._create_fake_order(other_advertiser=True)
+        response = self.client.get(f"/order/{order.pk}", {}, format="json")
+        self.assertEqual(response.status_code, 403)
 
     def test_list_order(self):
         self._create_and_log_in_user()
@@ -213,6 +245,15 @@ class TestReadOrder(TestOrderBase):
         ]
         self.assertEqual(response.json(), expected_value)
 
+    def test_list_order_is_empity(self):
+        self._create_and_log_in_user()
+
+        # create order with other user
+        self._create_fake_order(other_advertiser=True)
+
+        response = self.client.get("/order/", {}, format="json")
+        self.assertEqual(response.json(), [])
+
 
 class TestDeleteOrder(TestOrderBase):
     def test_delete_order(self):
@@ -225,6 +266,15 @@ class TestDeleteOrder(TestOrderBase):
         self.assertEqual(response.status_code, 204)
 
         self.assertEqual(models.Order.objects.count(), 0)
+
+    def test_delete_order_with_invalid_user(self):
+        self._create_and_log_in_user()
+
+        # create order with other user
+        order = self._create_fake_order(other_advertiser=True)
+
+        response = self.client.delete(f"/order/{order.pk}", {}, format="json")
+        self.assertEqual(response.status_code, 403)
 
 
 # Test Advertiser
@@ -272,14 +322,14 @@ class TestReadAdvertiser(TestAdvertiserBase):
         advertiser = _create_fake_advertiser()
         self.client.login(
             username=advertiser.user.username,
-            password=advertiser.user.test_password
+            password=advertiser.user.test_password,
         )
 
         response = self.client.get("/advertiser/", {}, format="json")
 
         expected_value = {
-            'user': {'username': 'FakeUsername', 'email': 'fake@email.com'},
-            'phone': 'Fake Phone'
+            "user": {"username": "FakeUsername", "email": "fake@email.com"},
+            "phone": "Fake Phone",
         }
         self.assertEqual(response.json(), expected_value)
 

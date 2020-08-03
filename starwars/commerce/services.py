@@ -1,7 +1,7 @@
 from . import models
 
 
-def create_order(validated_data):
+def create_order(validated_data, user_id):
     order = models.Order()
     order.status = models.Order.STATUS_OPEN
 
@@ -22,13 +22,16 @@ def create_order(validated_data):
         cep=validated_data["shipping_address"].get("cep"),
     )
     shipping_address.save()
-
     order.shipping_address = shipping_address
+
+    advertiser = models.Advertiser.objects.get(pk=user_id)
+    order.advertiser = advertiser
+
     order.save()
     return order
 
 
-def update_order(order_id, validated_data):
+def update_order(order_id, validated_data, user_id):
     order = models.Order.objects.get(pk=order_id)
     order.status = validated_data.get("status", order.status)
     if validated_data.get("item"):
@@ -43,6 +46,10 @@ def update_order(order_id, validated_data):
             "state", order.shipping_address.state
         )
         order.shipping_address.save()
+
+    if not order.advertiser:
+        advertiser = models.Advertiser.objects.get(pk=user_id)
+        order.advertiser = advertiser
 
     order.save()
     return order
