@@ -1,5 +1,4 @@
 import uuid
-from rest_framework.test import APITestCase
 from commerce import models
 
 
@@ -43,7 +42,7 @@ def create_fake_order(advertiser_id=None):
     if advertiser_id:
         order.advertiser_id = advertiser_id
     else:
-        advertiser = test_util.create_fake_advertiser()
+        advertiser = create_fake_advertiser()
         order.advertiser = advertiser
 
     order.save()

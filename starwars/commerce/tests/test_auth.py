@@ -1,6 +1,4 @@
-import uuid
 from rest_framework.test import APITestCase
-from commerce import models
 
 from . import test_util
 
