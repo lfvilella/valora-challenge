@@ -17,7 +17,7 @@ def get_order(order_id, user_id):
     if advertiser.user.is_superuser:
         return order
 
-    if order.advertiser.id != advertiser.user.pk:
+    if order.advertiser.user.id != advertiser.user.pk:
         return None
 
     return order
@@ -62,7 +62,7 @@ def create_order(validated_data, user_id):
     shipping_address.save()
     order.shipping_address = shipping_address
 
-    advertiser = models.Advertiser.objects.get(pk=user_id)
+    advertiser = get_advertiser_by_user_id(user_id)
     order.advertiser = advertiser
 
     order.save()
