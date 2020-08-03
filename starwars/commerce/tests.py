@@ -349,7 +349,7 @@ class TestAdministrador(TestOrderBase):
         self.assertEqual(adm.user.is_superuser, True)
 
     def test_get_order(self):
-        advertiser = self._create_and_log_in_user()
+        advertiser = _create_fake_advertiser()
         order = self._create_fake_order(advertiser_id=advertiser.pk)
 
         adm = self._create_fake_admin()
@@ -361,10 +361,10 @@ class TestAdministrador(TestOrderBase):
         self.assertEqual(response.status_code, 200)
 
     def test_list_order(self):
-        advertiser1 = self._create_and_log_in_user()
+        advertiser1 = _create_fake_advertiser()
         order1 = self._create_fake_order(advertiser_id=advertiser1.pk)
 
-        advertiser2 = self._create_and_log_in_user()
+        advertiser2 = _create_fake_advertiser()
         order2 = self._create_fake_order(advertiser_id=advertiser2.pk)
 
         adm = self._create_fake_admin()
@@ -409,6 +409,25 @@ class TestAdministrador(TestOrderBase):
             },
         ]
         self.assertEqual(response.json(), expected_value)
+
+    def test_delete_order(self):
+        advertiser = _create_fake_advertiser()
+        order = self._create_fake_order(advertiser_id=advertiser.pk)
+
+        self.assertEqual(models.Order.objects.count(), 1)
+
+        self._create_and_log_in_user()  # new user logged
+        response = self.client.delete(f"/order/{order.pk}", {}, format="json")
+        self.assertEqual(response.status_code, 404)
+
+        adm = self._create_fake_admin()
+        self.client.login(
+            username=adm.user.username, password=adm.user.test_password,
+        )
+        response = self.client.delete(f"/order/{order.pk}", {}, format="json")
+        self.assertEqual(response.status_code, 204)
+
+        self.assertEqual(models.Order.objects.count(), 0)
 
 
 # Test Advertiser
