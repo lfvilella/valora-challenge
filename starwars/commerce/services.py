@@ -26,7 +26,9 @@ def get_order(order_id, user_id):
 def list_order(user_id):
     advertiser = get_advertiser_by_user_id(user_id)
 
-    orders = models.Order.objects.filter(advertiser__user__pk=advertiser.user.pk).all()
+    orders = models.Order.objects.filter(
+        advertiser__user__pk=advertiser.user.pk
+    ).all()
 
     if advertiser.user.is_superuser:
         return models.Order.objects.all()

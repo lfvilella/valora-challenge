@@ -24,7 +24,7 @@ class TestLogin(APITestCase):
         self.advertiser = _create_fake_advertiser()
         self.data = {
             "username": self.advertiser.user.username,
-            "password": self.advertiser.user.test_password
+            "password": self.advertiser.user.test_password,
         }
 
     def test_valid_login_returns_200(self):
@@ -36,12 +36,12 @@ class TestLogin(APITestCase):
         expected_value = {
             "id": self.advertiser.user.pk,
             "username": self.advertiser.user.username,
-            "email": self.advertiser.user.email
+            "email": self.advertiser.user.email,
         }
         self.assertEqual(response.json(), expected_value)
 
     def test_invalid_login_returns_400(self):
-        self.data['password'] = "Wrong Password"
+        self.data["password"] = "Wrong Password"
         response = self.client.post("/user-auth/", self.data, format="json")
         self.assertEqual(response.status_code, 400)
 
@@ -324,6 +324,7 @@ class TestDeleteOrder(TestOrderBase):
 
 # Test Manager/adm
 
+
 class TestAdministrador(TestOrderBase):
     def _create_fake_admin(self):
         advertiser = models.Advertiser()
@@ -353,8 +354,7 @@ class TestAdministrador(TestOrderBase):
 
         adm = self._create_fake_admin()
         self.client.login(
-            username=adm.user.username,
-            password=adm.user.test_password,
+            username=adm.user.username, password=adm.user.test_password,
         )
 
         response = self.client.get(f"/order/{order.pk}", {}, format="json")
@@ -369,8 +369,7 @@ class TestAdministrador(TestOrderBase):
 
         adm = self._create_fake_admin()
         self.client.login(
-            username=adm.user.username,
-            password=adm.user.test_password,
+            username=adm.user.username, password=adm.user.test_password,
         )
         response = self.client.get("/order/", {}, format="json")
         self.assertEqual(response.status_code, 200)
@@ -410,8 +409,6 @@ class TestAdministrador(TestOrderBase):
             },
         ]
         self.assertEqual(response.json(), expected_value)
-
-
 
 
 # Test Advertiser
@@ -468,7 +465,7 @@ class TestReadAdvertiser(TestAdvertiserBase):
             "user": {
                 "id": advertiser.user.pk,
                 "username": advertiser.user.username,
-                "email": advertiser.user.email
+                "email": advertiser.user.email,
             },
             "phone": advertiser.phone,
         }
