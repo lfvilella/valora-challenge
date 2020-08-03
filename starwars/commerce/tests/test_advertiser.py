@@ -34,7 +34,7 @@ class TestCreateAdvertiser(TestAdvertiserBase):
             "user": {
                 "id": advertiser.user.pk,
                 "username": advertiser.user.username,
-                "email": advertiser.user.email
+                "email": advertiser.user.email,
             },
             "phone": advertiser.phone,
         }
@@ -44,8 +44,8 @@ class TestCreateAdvertiser(TestAdvertiserBase):
         self.client.post("/advertiser/", self.data, format="json")
 
         login_data = {
-            'username': self.data['user']['username'],
-            'password': self.data['user']['password'],
+            "username": self.data["user"]["username"],
+            "password": self.data["user"]["password"],
         }
         login_response = self.client.post(
             "/user-auth/", login_data, format="json"

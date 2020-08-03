@@ -23,7 +23,6 @@ class RestBaseView(views.APIView):
 
 
 class UserAuthView(RestBaseView):
-
     def post(self, request):
         serializer = serializers.UserLoginSerializer(data=request.data)
 
@@ -59,7 +58,7 @@ class OrderAPIView(RestBaseView):
         return response.Response(serializer.data, status=status.HTTP_200_OK)
 
     def _list(self, request):
-        orders = services.list_order(request.user.pk)
+        orders = services.list_orders(request.user.pk)
         serialized_orders = []
         for order in orders:
             serializer = serializers.OrderSerializer(order)
