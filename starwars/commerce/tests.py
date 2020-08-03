@@ -46,6 +46,31 @@ class TestLogin(APITestCase):
         self.assertEqual(response.status_code, 400)
 
 
+class TestLogout(APITestCase):
+    def test_returns_204(self):
+        advertiser = _create_fake_advertiser()
+        self.client.login(
+            username=advertiser.user.username,
+            password=advertiser.user.test_password,
+        )
+        response = self.client.delete("/user-auth/", {}, format="json")
+        self.assertEqual(response.status_code, 204)
+
+    def test_deny_access(self):
+        advertiser = _create_fake_advertiser()
+        self.client.login(
+            username=advertiser.user.username,
+            password=advertiser.user.test_password,
+        )
+        response = self.client.get("/advertiser/", {}, format="json")
+        self.assertEqual(response.status_code, 200)
+
+        self.client.delete("/user-auth/", {}, format="json")
+        response = self.client.get("/advertiser/", {}, format="json")
+        self.assertEqual(response.status_code, 302)
+
+
+
 class TestOrderBase(APITestCase):
     def setUp(self):
         self.data = {

@@ -28,6 +28,10 @@ class LoginAPIView(views.APIView):
 
         return response.Response(user_detail.data, status=status.HTTP_200_OK)
 
+    def delete(self, request):
+        services.user_logout(request)
+        return response.Response({}, status=status.HTTP_204_NO_CONTENT)
+
 
 class OrderAPIView(views.APIView):
 

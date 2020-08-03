@@ -124,3 +124,7 @@ def user_login(request, username, password):
 
     auth.login(request, user)
     return user
+
+
+def user_logout(request):
+    return auth.logout(request)
