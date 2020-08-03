@@ -9,6 +9,26 @@ from rest_framework import permissions
 from . import serializers, services
 
 
+class LoginAPIView(views.APIView):
+
+    def post(self, request):
+        serializer = serializers.UserLoginSerializer(data=request.data)
+
+        if not serializer.is_valid():
+            return response.Response(
+                serializer.errors, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        user = services.user_login(
+            request,
+            username=serializer.data['username'],
+            password=serializer.data['password']
+        )
+        user_detail = serializers.UserDetailSerializer(user)
+
+        return response.Response(user_detail.data, status=status.HTTP_200_OK)
+
+
 class OrderAPIView(views.APIView):
 
     permission_classes = [permissions.IsAuthenticated]
@@ -41,7 +61,7 @@ class OrderAPIView(views.APIView):
         serializer = serializers.OrderSerializer(data=request.data)
         if not serializer.is_valid():
             return response.Response(
-                {}, status=status.HTTP_400_BAD_REQUEST
+                serializer.errors, status=status.HTTP_400_BAD_REQUEST
             )
 
         services.create_order(
@@ -123,6 +143,12 @@ class AdvertiserAPIView(views.APIView):
             )
 
         serializer.save()
+
+        services.user_login(
+            request,
+            username=serializer.data['user']['username'],
+            password=serializer.data['user']['password']
+        )
         return response.Response(
             serializer.data, status=status.HTTP_201_CREATED
         )

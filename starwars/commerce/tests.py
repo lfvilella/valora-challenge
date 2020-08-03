@@ -19,6 +19,33 @@ def _create_fake_advertiser():
     return advertiser
 
 
+class TestLogin(APITestCase):
+    def setUp(self):
+        self.advertiser = _create_fake_advertiser()
+        self.data = {
+            "username": self.advertiser.user.username,
+            "password": self.advertiser.user.test_password
+        }
+
+    def test_valid_login_returns_200(self):
+        response = self.client.post("/user-auth/", self.data, format="json")
+        self.assertEqual(response.status_code, 200)
+
+    def test_valid_login_returns_user_info(self):
+        response = self.client.post("/user-auth/", self.data, format="json")
+        expected_value = {
+            "id": self.advertiser.user.pk,
+            "username": self.advertiser.user.username,
+            "email": self.advertiser.user.email
+        }
+        self.assertEqual(response.json(), expected_value)
+
+    def test_invalid_login_returns_400(self):
+        self.data['password'] = "Wrong Password"
+        response = self.client.post("/user-auth/", self.data, format="json")
+        self.assertEqual(response.status_code, 400)
+
+
 class TestOrderBase(APITestCase):
     def setUp(self):
         self.data = {
@@ -323,6 +350,7 @@ class TestReadAdvertiser(TestAdvertiserBase):
 
         expected_value = {
             "user": {
+                "id": advertiser.user.pk,
                 "username": advertiser.user.username,
                 "email": advertiser.user.email
             },

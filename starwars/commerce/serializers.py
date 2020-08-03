@@ -1,4 +1,7 @@
+from django.contrib import auth
+
 from rest_framework import serializers
+
 from . import models
 from . import services
 
@@ -9,10 +12,23 @@ class ItemSerializer(serializers.ModelSerializer):
         fields = ["name", "description"]
 
 
+class UserLoginSerializer(serializers.Serializer):
+    username = serializers.CharField(required=True)
+    password = serializers.CharField(required=True)
+
+    def validate(self, data):
+        username = data['username']
+        password = data['password']
+        user = auth.authenticate(username=username, password=password)
+        if not user:
+            raise serializers.ValidationError("Invalid Credentials")
+        return data
+
+
 class UserDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.User
-        fields = ["username", "email"]
+        fields = ["id", "username", "email"]
 
 
 class UserSerializer(serializers.ModelSerializer):

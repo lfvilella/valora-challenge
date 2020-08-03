@@ -1,3 +1,5 @@
+from django.contrib import auth
+
 from . import models
 
 
@@ -113,3 +115,12 @@ def get_advertiser_by_user_id(user_id):
         return models.Advertiser.objects.get(user__id=user_id)
     except models.Advertiser.DoesNotExist:
         return None
+
+
+def user_login(request, username, password):
+    user = auth.authenticate(request, username=username, password=password)
+    if not user:
+        return None
+
+    auth.login(request, user)
+    return user
