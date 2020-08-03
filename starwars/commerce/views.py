@@ -10,7 +10,6 @@ from . import serializers, services
 
 
 class LoginAPIView(views.APIView):
-
     def post(self, request):
         serializer = serializers.UserLoginSerializer(data=request.data)
 
@@ -21,8 +20,8 @@ class LoginAPIView(views.APIView):
 
         user = services.user_login(
             request,
-            username=serializer.data['username'],
-            password=serializer.data['password']
+            username=serializer.data["username"],
+            password=serializer.data["password"],
         )
         user_detail = serializers.UserDetailSerializer(user)
 
@@ -40,9 +39,7 @@ class OrderAPIView(views.APIView):
     def _detail(self, request, order_id):
         order = services.get_order(order_id, request.user.pk)
         if not order:
-            return response.Response(
-                {}, status=status.HTTP_404_NOT_FOUND
-            )
+            return response.Response({}, status=status.HTTP_404_NOT_FOUND)
 
         serializer = serializers.OrderSerializer(order)
         return response.Response(serializer.data, status=status.HTTP_200_OK)
@@ -79,9 +76,7 @@ class OrderAPIView(views.APIView):
     def put(self, request, order_id):
         order = services.get_order(order_id, request.user.pk)
         if not order:
-            return response.Response(
-                {}, status=status.HTTP_404_NOT_FOUND
-            )
+            return response.Response({}, status=status.HTTP_404_NOT_FOUND)
 
         serializer = serializers.OrderSerializer(
             instance=order, data=request.data
@@ -102,18 +97,14 @@ class OrderAPIView(views.APIView):
     def delete(self, request, order_id):
         deleted_order = services.delete_order(order_id, request.user.pk)
         if not deleted_order:
-            return response.Response(
-                {}, status=status.HTTP_404_NOT_FOUND
-            )
+            return response.Response({}, status=status.HTTP_404_NOT_FOUND)
 
         return response.Response({}, status=status.HTTP_204_NO_CONTENT)
 
     def patch(self, request, order_id):
         order = services.get_order(order_id, request.user.pk)
         if not order:
-            return response.Response(
-                {}, status=status.HTTP_404_NOT_FOUND
-            )
+            return response.Response({}, status=status.HTTP_404_NOT_FOUND)
 
         serializer = serializers.OrderPatchSerializer(
             instance=order, data=request.data
@@ -150,8 +141,8 @@ class AdvertiserAPIView(views.APIView):
 
         services.user_login(
             request,
-            username=serializer.data['user']['username'],
-            password=serializer.data['user']['password']
+            username=serializer.data["user"]["username"],
+            password=serializer.data["user"]["password"],
         )
         return response.Response(
             serializer.data, status=status.HTTP_201_CREATED

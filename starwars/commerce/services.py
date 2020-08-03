@@ -14,6 +14,9 @@ def get_order(order_id, user_id):
     if not advertiser:
         return None
 
+    if advertiser.user.is_superuser:
+        return order
+
     if order.advertiser.id != advertiser.user.pk:
         return None
 
@@ -21,7 +24,15 @@ def get_order(order_id, user_id):
 
 
 def list_order(user_id):
-    orders = models.Order.objects.filter(advertiser__user__pk=user_id).all()
+    advertiser = get_advertiser_by_user_id(user_id)
+
+    orders = models.Order.objects.filter(
+        advertiser__user__pk=advertiser.user.pk
+    ).all()
+
+    if advertiser.user.is_superuser:
+        return models.Order.objects.all()
+
     if not orders:
         return []
 
