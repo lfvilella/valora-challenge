@@ -13,6 +13,9 @@ build: delete-container ## Build the container
 	@docker-compose build
 	@docker-compose up -d
 
+createsuperuser: start ## Run tests
+	@docker-compose exec app /bin/bash -c "./manage.py createsuperuser"
+
 test: start ## Run tests
 	@docker-compose exec app /bin/bash -c "./manage.py test"
 
@@ -30,6 +33,7 @@ up: start ## Start django dev server
 
 start:
 	@docker-compose start
+	@docker-compose exec app /bin/bash -c "./manage.py migrate"
 
 down: ## Stop container
 	@docker-compose stop || true

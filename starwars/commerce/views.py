@@ -1,6 +1,7 @@
 from django.utils.decorators import method_decorator
 from django.contrib.auth import decorators
 
+from rest_framework import authentication
 from rest_framework import views
 from rest_framework import response
 from rest_framework import status
@@ -9,7 +10,19 @@ from rest_framework import permissions
 from . import serializers, services
 
 
-class LoginAPIView(views.APIView):
+class CsrfExemptSessionAuthentication(authentication.SessionAuthentication):
+    def enforce_csrf(self, request):
+        pass
+
+
+class RestBaseView(views.APIView):
+    authentication_classes = [
+        authentication.BasicAuthentication,
+        CsrfExemptSessionAuthentication,
+    ]
+
+
+class UserAuthView(RestBaseView):
     def post(self, request):
         serializer = serializers.UserLoginSerializer(data=request.data)
 
@@ -32,7 +45,7 @@ class LoginAPIView(views.APIView):
         return response.Response({}, status=status.HTTP_204_NO_CONTENT)
 
 
-class OrderAPIView(views.APIView):
+class OrderAPIView(RestBaseView):
 
     permission_classes = [permissions.IsAuthenticated]
 
@@ -45,7 +58,7 @@ class OrderAPIView(views.APIView):
         return response.Response(serializer.data, status=status.HTTP_200_OK)
 
     def _list(self, request):
-        orders = services.list_order(request.user.pk)
+        orders = services.list_orders(request.user.pk)
         serialized_orders = []
         for order in orders:
             serializer = serializers.OrderSerializer(order)
@@ -59,16 +72,16 @@ class OrderAPIView(views.APIView):
         return self._list(request)
 
     def post(self, request):
-        serializer = serializers.OrderSerializer(data=request.data)
+        serializer = serializers.OrderCreateSerializer(data=request.data)
         if not serializer.is_valid():
             return response.Response(
                 serializer.errors, status=status.HTTP_400_BAD_REQUEST
             )
 
-        services.create_order(
+        order = services.create_order(
             validated_data=serializer.validated_data, user_id=request.user.pk
         )
-
+        serializer = serializers.OrderSerializer(order)
         return response.Response(
             serializer.data, status=status.HTTP_201_CREATED
         )
@@ -86,11 +99,12 @@ class OrderAPIView(views.APIView):
                 serializer.errors, status=status.HTTP_400_BAD_REQUEST
             )
 
-        services.update_order(
+        updated_order = services.update_order(
             order_id=order.pk,
             validated_data=serializer.validated_data,
             user_id=request.user.pk,
         )
+        serializer = serializers.OrderSerializer(updated_order)
 
         return response.Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -99,7 +113,8 @@ class OrderAPIView(views.APIView):
         if not deleted_order:
             return response.Response({}, status=status.HTTP_404_NOT_FOUND)
 
-        return response.Response({}, status=status.HTTP_204_NO_CONTENT)
+        serializer = serializers.OrderSerializer(deleted_order)
+        return response.Response(serializer.data, status=status.HTTP_200_OK)
 
     def patch(self, request, order_id):
         order = services.get_order(order_id, request.user.pk)
@@ -114,16 +129,17 @@ class OrderAPIView(views.APIView):
                 serializer.errors, status=status.HTTP_400_BAD_REQUEST
             )
 
-        services.update_order(
+        updated_order = services.update_order(
             order_id=order.pk,
             validated_data=serializer.validated_data,
             user_id=request.user.pk,
         )
+        serializer = serializers.OrderSerializer(updated_order)
 
         return response.Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class AdvertiserAPIView(views.APIView):
+class AdvertiserAPIView(RestBaseView):
     @method_decorator(decorators.login_required)
     def get(self, request):
         advertiser = services.get_advertiser_by_user_id(request.user.pk)
@@ -137,13 +153,15 @@ class AdvertiserAPIView(views.APIView):
                 serializer.errors, status=status.HTTP_400_BAD_REQUEST
             )
 
-        serializer.save()
+        advertiser = serializer.save()
 
         services.user_login(
             request,
-            username=serializer.data["user"]["username"],
-            password=serializer.data["user"]["password"],
+            username=request.data["user"]["username"],
+            password=request.data["user"]["password"],
         )
+
+        serializer = serializers.AdvertiserGetSerializer(advertiser)
         return response.Response(
             serializer.data, status=status.HTTP_201_CREATED
         )

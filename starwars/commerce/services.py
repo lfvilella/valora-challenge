@@ -1,9 +1,21 @@
+import typing
+
 from django.contrib import auth
 
 from . import models
 
 
-def get_order(order_id, user_id):
+def get_order(order_id: int, user_id: int) -> models.Order:
+    """ Get Order.
+
+    Args:
+        order_id: Order ID.
+        user_id: User ID.
+
+    Returns:
+        A models.Order.
+    """
+
     order = None
     try:
         order = models.Order.objects.get(pk=order_id)
@@ -17,13 +29,23 @@ def get_order(order_id, user_id):
     if advertiser.user.is_superuser:
         return order
 
-    if order.advertiser.id != advertiser.user.pk:
+    if order.advertiser.user.id != advertiser.user.pk:
         return None
 
     return order
 
 
-def list_order(user_id):
+def list_orders(user_id: int) -> typing.List[models.Order]:
+    """ List Orders.
+
+    Args:
+        user_id: User ID.
+
+    Returns:
+        Filtered orders if user is not superuser.
+        All orders if user is superuser.
+    """
+
     advertiser = get_advertiser_by_user_id(user_id)
 
     orders = models.Order.objects.filter(
@@ -39,7 +61,17 @@ def list_order(user_id):
     return orders
 
 
-def create_order(validated_data, user_id):
+def create_order(validated_data: dict, user_id: int) -> models.Order:
+    """ Create Order.
+
+    Args:
+        validated_data: Dictionary containing order information.
+        user_id: User ID.
+
+    Returns:
+        A models.Order.
+    """
+
     order = models.Order()
     order.status = models.Order.STATUS_OPEN
 
@@ -62,14 +94,27 @@ def create_order(validated_data, user_id):
     shipping_address.save()
     order.shipping_address = shipping_address
 
-    advertiser = models.Advertiser.objects.get(pk=user_id)
+    advertiser = get_advertiser_by_user_id(user_id)
     order.advertiser = advertiser
 
     order.save()
     return order
 
 
-def update_order(order_id, validated_data, user_id):
+def update_order(
+    order_id: int, validated_data: dict, user_id: int
+) -> models.Order:
+    """ Update Order.
+
+    Args:
+        order_id: Order ID.
+        validated_data: Dictionary containing order information.
+        user_id: User ID.
+
+    Returns:
+        A models.Order.
+    """
+
     order = get_order(order_id, user_id)
     order.status = validated_data.get("status", order.status)
     if validated_data.get("item"):
@@ -93,7 +138,17 @@ def update_order(order_id, validated_data, user_id):
     return order
 
 
-def delete_order(order_id, user_id):
+def delete_order(order_id: int, user_id: int) -> models.Order:
+    """ Delete Order.
+
+    Args:
+        order_id: Order ID.
+        user_id: User ID.
+
+    Returns:
+        A models.Order.
+    """
+
     order = get_order(order_id, user_id)
     if not order:
         return None
@@ -105,30 +160,58 @@ def delete_order(order_id, user_id):
 # Advertiser
 
 
-def create_advertiser(validated_data):
+def create_advertiser(validated_data: dict) -> models.Advertiser:
+    """ Create Advertiser.
+
+    Args:
+        validated_data: Dictionary containing advertiser information.
+
+    Returns:
+        A models.Advertiser.
+    """
+
     advertiser = models.Advertiser()
     advertiser.phone = validated_data["phone"]
 
-    user = models.User(
+    user = models.User.objects.create_user(
         username=validated_data["user"]["username"],
         password=validated_data["user"]["password"],
         email=validated_data["user"].get("email"),
     )
-    user.save()
 
     advertiser.user = user
     advertiser.save()
     return advertiser
 
 
-def get_advertiser_by_user_id(user_id):
+def get_advertiser_by_user_id(user_id: int) -> models.Advertiser:
+    """ Get Advertiser By User Id.
+
+    Args:
+        user_id: User ID.
+
+    Returns:
+        A models.Advertiser.
+    """
+
     try:
         return models.Advertiser.objects.get(user__id=user_id)
     except models.Advertiser.DoesNotExist:
         return None
 
 
-def user_login(request, username, password):
+def user_login(request, username: str, password: str) -> models.User:
+    """ User Login.
+
+    Args:
+        request: A request.
+        username: A username.
+        password: A password.
+
+    Returns:
+        A models.User.
+    """
+
     user = auth.authenticate(request, username=username, password=password)
     if not user:
         return None
