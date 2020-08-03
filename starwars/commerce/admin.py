@@ -6,9 +6,16 @@ from . import models
 
 @admin.register(models.Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ["item", "order_status"]
+    list_display = ["item", "order_status", "contact"]
     search_fields = ["item__name", "shipping_address__cep"]
     list_filter = ["status"]
+
+    def contact(self, order):
+        phone = order.advertiser.phone
+        email = order.advertiser.user.email
+        if email:
+            return (phone, email)
+        return phone
 
     def order_status(self, order):
         if order.status == "finished":
