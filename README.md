@@ -4,6 +4,7 @@
 # valora-challenge
 Selective process challenge.
 
+
 # Running locally
 
 $ make build
@@ -13,3 +14,8 @@ $ make up
 Optional:
 
 $ make test
+
+
+# Postman Test
+
+Import this [Postman Collection](./docs/postman/valora-challenge.postman_collection.json) to test locally.
