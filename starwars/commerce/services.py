@@ -1,4 +1,31 @@
+from django.contrib import auth
+
 from . import models
+
+
+def get_order(order_id, user_id):
+    order = None
+    try:
+        order = models.Order.objects.get(pk=order_id)
+    except models.Order.DoesNotExist:
+        return None
+
+    advertiser = get_advertiser_by_user_id(user_id)
+    if not advertiser:
+        return None
+
+    if order.advertiser.id != advertiser.user.pk:
+        return None
+
+    return order
+
+
+def list_order(user_id):
+    orders = models.Order.objects.filter(advertiser__user__pk=user_id).all()
+    if not orders:
+        return []
+
+    return orders
 
 
 def create_order(validated_data, user_id):
@@ -32,7 +59,7 @@ def create_order(validated_data, user_id):
 
 
 def update_order(order_id, validated_data, user_id):
-    order = models.Order.objects.get(pk=order_id)
+    order = get_order(order_id, user_id)
     order.status = validated_data.get("status", order.status)
     if validated_data.get("item"):
         order.item.name = validated_data["item"].get("name", order.item.name)
@@ -55,8 +82,11 @@ def update_order(order_id, validated_data, user_id):
     return order
 
 
-def delete_order(order_id):
-    order = models.Order.objects.get(pk=order_id)
+def delete_order(order_id, user_id):
+    order = get_order(order_id, user_id)
+    if not order:
+        return None
+
     order.delete()
     return order
 
@@ -80,5 +110,21 @@ def create_advertiser(validated_data):
     return advertiser
 
 
-def get_advertiser_by_id(user_id):
-    return models.Advertiser.objects.get(user__id=user_id)
+def get_advertiser_by_user_id(user_id):
+    try:
+        return models.Advertiser.objects.get(user__id=user_id)
+    except models.Advertiser.DoesNotExist:
+        return None
+
+
+def user_login(request, username, password):
+    user = auth.authenticate(request, username=username, password=password)
+    if not user:
+        return None
+
+    auth.login(request, user)
+    return user
+
+
+def user_logout(request):
+    return auth.logout(request)
