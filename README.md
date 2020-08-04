@@ -35,5 +35,7 @@ Open admin: http://localhost:8000/admin
 
 Import this [Postman Collection](./docs/postman/valora-challenge.postman_collection.json) to test locally.
 
+Commented Test: [See the Video on YouTube](https://www.youtube.com/watch?v=apaY1ptgUDY)
+
 # Changing Order Status
 ![valora-giphy](https://user-images.githubusercontent.com/45940140/89242027-ed596d80-d5d6-11ea-9a1c-8f335b76d0a8.gif)
