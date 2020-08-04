@@ -10,6 +10,7 @@ validate_env:
 	@command -v docker-compose > /dev/null || (echo "You need to install docker and docker-compose before proceeding" && exit 1)
 
 build: delete-container ## Build the container
+	@[ -f .env ] || cp template.env .env
 	@docker-compose build
 	@docker-compose up -d
 
