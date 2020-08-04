@@ -4,6 +4,12 @@
 # Valora Challenge
 Valora's Company Selective process challenge.
 
+Open: http://valora.lfvilella.com/admin
+```
+User: root
+Password: 123
+```
+
 Tech Stack:
 - Python
 - Django
