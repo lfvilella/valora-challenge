@@ -12,3 +12,15 @@ services:
         stdin_open: true
         tty: true
         command: ${RUNSERVER:-/bin/bash}
+        networks:
+            - nginx-gateway
+        environment:
+            VIRTUAL_HOST: valora.lfvilella.com
+            VIRTUAL_HOST_ALIAS: valora.lfvilella.com,www.valora.lfvilella.com
+            LETSENCRYPT_HOST: valora.lfvilella.com,www.valora.lfvilella.com
+            LETSENCRYPT_EMAIL: vilella.luisfelipe+valora.lfvilella.com@gmail.com
+
+networks:
+    nginx-gateway:
+        external:
+            name: nginx-gateway

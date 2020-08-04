@@ -17,6 +17,7 @@ Optional:
 
     $ make test
 
+Open admin: http://localhost:8000/admin
 
 # Postman Test
 
