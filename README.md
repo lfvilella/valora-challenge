@@ -37,5 +37,7 @@ Import this [Postman Collection](./docs/postman/valora-challenge.postman_collect
 
 Commented Test: [See the Video on YouTube](https://www.youtube.com/watch?v=apaY1ptgUDY)
 
+[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/apaY1ptgUDY/0.jpg)](https://www.youtube.com/watch?v=apaY1ptgUDY)
+
 # Changing Order Status
 ![valora-giphy](https://user-images.githubusercontent.com/45940140/89242027-ed596d80-d5d6-11ea-9a1c-8f335b76d0a8.gif)
