@@ -2,7 +2,13 @@
 [![license](https://img.shields.io/github/license/lfvilella/valora-challenge.svg)](https://github.com/lfvilella/valora-challenge/blob/master/LICENSE)
 
 # Valora Challenge
-Selective process challenge.
+Valora's Company Selective process challenge.
+
+Tech Stack:
+- Python
+- Django
+- Django-REST
+- Docker / docker-compose
 
 
 # Running locally
