@@ -1,3 +1,9 @@
+""" Services
+
+This module is responsible to handle all interactions to the database
+and bussiness rules.
+"""
+
 import typing
 
 from django.contrib import auth
