@@ -4,6 +4,12 @@
 # Valora Challenge
 Valora's Company Selective process challenge.
 
+[Go to Orders on Website](http://valora.lfvilella.com/admin/commerce/order)
+```
+User: root
+Password: 123
+```
+
 Tech Stack:
 - Python
 - Django
@@ -28,3 +34,6 @@ Open admin: http://localhost:8000/admin
 # Postman Test
 
 Import this [Postman Collection](./docs/postman/valora-challenge.postman_collection.json) to test locally.
+
+# Changing Order Status
+![valora-giphy](https://user-images.githubusercontent.com/45940140/89242027-ed596d80-d5d6-11ea-9a1c-8f335b76d0a8.gif)
