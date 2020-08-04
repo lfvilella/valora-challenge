@@ -4,7 +4,7 @@
 # Valora Challenge
 Valora's Company Selective process challenge.
 
-Open: http://valora.lfvilella.com/admin
+[Go to Orders on Website](http://valora.lfvilella.com/admin/commerce/order)
 ```
 User: root
 Password: 123
